@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret_key')
 
-DEBUG = strtobool(os.getenv('True', 'bool'))
+DEBUG = strtobool(os.getenv('True', 'True'))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
 
@@ -83,7 +83,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'MSK'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
