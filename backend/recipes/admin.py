@@ -2,12 +2,6 @@ from django.contrib import admin
 
 from recipes.models import Recipe, RecipeIngredient
 
-"""
-для модели рецептов:
-в списке рецептов вывести название и имя автора рецепта;
-добавить фильтры по автору, названию рецепта, тегам;
-на странице рецепта вывести общее число добавлений этого рецепта в избранное;
-"""
 
 class IngredientsInline(admin.TabularInline):
     model = RecipeIngredient
