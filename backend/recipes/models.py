@@ -15,8 +15,8 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
+        through='RecipeIngredient',
         verbose_name='Список ингредиентов',
-        through='RecipeIngredient'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -54,6 +54,7 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField()
 
     class Meta:
+        default_related_name = 'recipe_ingredients'
         verbose_name = 'Содержимое рецепта'
         verbose_name_plural = 'Содержимое рецепта'
 
