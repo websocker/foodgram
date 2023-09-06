@@ -1,3 +1,34 @@
 from django.contrib import admin
 
-# Register your models here.
+from recipes.models import Recipe, RecipeIngredient
+
+"""
+для модели рецептов:
+в списке рецептов вывести название и имя автора рецепта;
+добавить фильтры по автору, названию рецепта, тегам;
+на странице рецепта вывести общее число добавлений этого рецепта в избранное;
+"""
+
+class IngredientsInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
+
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'author', 'favorites_count')
+    list_editable = ('name', 'author')
+    list_filter = ('author', 'name', 'tags')
+    inlines = (IngredientsInline, )
+    empty_value_display = '--пусто--'
+
+    @staticmethod
+    def favorite_count(obj):
+        return obj.favorites.count()
+
+
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    list_display = ('recipe', 'ingredient', 'amount')
+    list_editable = ('recipe', 'ingredient', 'amount')
+    empty_value_display = '--пусто--'
