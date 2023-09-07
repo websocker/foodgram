@@ -18,9 +18,11 @@ class GroceryList(models.Model):
         default_related_name = 'groceries'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = models.UniqueConstraint(
-            fields=('user', 'recipe'),
-            name='unique_grocery_list'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_grocery_list'
+            ),
         )
 
     def __str__(self):
@@ -41,8 +43,8 @@ class Favorite(models.Model):
         verbose_name_plural = 'Избранные рецепты'
         constraints = (
             models.UniqueConstraint(
-              fields=('user', 'recipe'),
-              name='unique_favorite'
+                fields=('user', 'recipe'),
+                name='unique_favorite'
             ),
         )
 
