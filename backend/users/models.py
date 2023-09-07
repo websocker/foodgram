@@ -18,6 +18,10 @@ class GroceryList(models.Model):
         default_related_name = 'groceries'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
+        constraints = models.UniqueConstraint(
+            fields=('user', 'recipe'),
+            name='unique_grocery_list'
+        )
 
     def __str__(self):
         return f'{self.user}\'s {self.recipe}'
@@ -35,6 +39,12 @@ class Favorite(models.Model):
         default_related_name = 'favorites'
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+        constraints = (
+            models.UniqueConstraint(
+              fields=('user', 'recipe'),
+              name='unique_favorite'
+            ),
+        )
 
     def __str__(self):
         return self.recipe
@@ -53,16 +63,16 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
-                fields=['user', 'author'],
+                fields=('user', 'author'),
                 name='unique_subscription'
             ),
             models.CheckConstraint(
                 check=~models.Q(user=models.F('author')),
                 name='no_self_subscriptions'
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'Пользователь {self.user} подписан на {self.author}'

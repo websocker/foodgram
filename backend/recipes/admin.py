@@ -13,7 +13,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'favorites_count')
     list_editable = ('name', 'author')
     list_filter = ('author', 'name', 'tags')
-    inlines = (IngredientsInline, )
+    inlines = (IngredientsInline,)
     empty_value_display = '--пусто--'
 
     @staticmethod
