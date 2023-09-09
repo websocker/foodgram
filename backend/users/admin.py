@@ -1,16 +1,17 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from users.models import GroceryList, Favorite, Follow
+from users.models import Favorite, Follow, GroceryList
 
 User = get_user_model()
 
-
 admin.site.unregister(User)
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'password', 'first_name', 'last_name', 'email')
+    list_display = ('id', 'username', 'password', 'first_name',
+                    'last_name', 'email')
     list_editable = ('username', 'password',
                      'first_name', 'last_name', 'email')
     list_filter = ('username', 'email')
