@@ -52,14 +52,14 @@ class Favorite(models.Model):
         return self.recipe
 
 
-class Subscription(models.Model):
+class Follow(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
-                             related_name='subscribers',
+                             related_name='followers',
                              verbose_name='Подписчик')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
-                               related_name='authors',
+                               related_name='followings',
                                verbose_name='Автор')
 
     class Meta:

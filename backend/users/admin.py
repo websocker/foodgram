@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from users.models import GroceryList, Favorite, Subscription
+from users.models import GroceryList, Favorite, Follow
 
 User = get_user_model()
 
@@ -32,7 +32,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     empty_value_display = '--пусто--'
 
 
-@admin.register(Subscription)
+@admin.register(Follow)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'author',)
     list_editable = ('user', 'author',)
