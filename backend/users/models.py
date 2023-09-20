@@ -1,66 +1,53 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from recipes.models import Recipe
 
-User = get_user_model()
-
-
-class GroceryList(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             verbose_name='Пользователь')
-    recipe = models.ForeignKey(Recipe,
-                               on_delete=models.CASCADE,
-                               verbose_name='Рецепт')
-
-    class Meta:
-        default_related_name = 'groceries'
-        verbose_name = 'Список покупок'
-        verbose_name_plural = 'Списки покупок'
-        constraints = (
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_grocery_list'
-            ),
-        )
-
-    def __str__(self):
-        return f'{self.user}\'s {self.recipe}'
-
-
-class Favorite(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             verbose_name='Пользователь')
-    recipe = models.ForeignKey(Recipe,
-                               on_delete=models.CASCADE,
-                               verbose_name='Рецепт')
+class User(AbstractUser):
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+    )
+    first_name = models.CharField(
+        max_length=150,
+        blank=False,
+    )
+    last_name = models.CharField(
+        max_length=150,
+        blank=False,
+    )
+    email = models.EmailField(
+        max_length=254,
+        blank=False,
+        unique=True,)
+    password = models.CharField(
+        max_length=150,
+        blank=False,
+    )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name', 'password')
 
     class Meta:
-        default_related_name = 'favorites'
-        verbose_name = 'Избранный рецепт'
-        verbose_name_plural = 'Избранные рецепты'
-        constraints = (
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_favorite'
-            ),
-        )
+        ordering = ('username',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return self.recipe
+        return self.get_full_name()
 
 
 class Follow(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='followers',
-                             verbose_name='Подписчик')
-    author = models.ForeignKey(User,
-                               on_delete=models.CASCADE,
-                               related_name='followings',
-                               verbose_name='Автор')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор'
+    )
 
     class Meta:
         verbose_name = 'Подписка'
@@ -72,7 +59,7 @@ class Follow(models.Model):
             ),
             models.CheckConstraint(
                 check=~models.Q(user=models.F('author')),
-                name='no_self_subscriptions'
+                name='self_subscriptions_not_allowed'
             ),
         )
 

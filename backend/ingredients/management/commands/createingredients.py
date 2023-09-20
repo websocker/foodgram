@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Create ingredients for app'
 
     def handle(self, *args, **options):
-        file_path = '../data/ingredients.csv'
+        file_path = './data/ingredients.csv'
         with open(file_path, 'r', encoding='utf-8') as ingredients_csv:
             ingredients = [
                 kwargs for kwargs in
