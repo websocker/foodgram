@@ -4,12 +4,10 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.mixins import (
-    CreateModelMixin, ListModelMixin,RetrieveModelMixin
-)
-from rest_framework.permissions import (
-    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
-)
+from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
+                                   RetrieveModelMixin)
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -18,12 +16,12 @@ from users.models import Follow
 
 from .filters import RecipeFilter
 from .pagination import CustomPagination
-from .serializers import (
-    FavoriteSerializer, IngredientSerializer, RecipeCreateSerializer,
-    RecipeReadSerializer, PasswordSerializer, ShoppingCartSerializer,
-    FollowToSerializer, FollowSerializer, TagSerializer,
-    CustomUserCreateSerializer, CustomUserReadSerializer
-)
+from .serializers import (CustomUserCreateSerializer, CustomUserReadSerializer,
+                          FavoriteSerializer, FollowSerializer,
+                          FollowToSerializer, IngredientSerializer,
+                          PasswordSerializer, RecipeCreateSerializer,
+                          RecipeReadSerializer, ShoppingCartSerializer,
+                          TagSerializer)
 from .utils import create_shopping_cart_report
 
 User = get_user_model()
@@ -45,7 +43,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class UserViewSet(
-    CreateModelMixin, ListModelMixin, RetrieveModelMixin,GenericViewSet
+    CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet
 ):
     queryset = User.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -185,7 +183,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {
                     'message': 'Рецепт успешно добавлен в избранное.',
                     'data': response_data
-                 },
+                },
                 status=status.HTTP_201_CREATED
             )
         elif request.method == 'DELETE':
@@ -228,7 +226,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'message': 'Рецепт успешно удален из списка покупок'},
                 status=status.HTTP_204_NO_CONTENT
             )
-
 
     @action(
         detail=False,

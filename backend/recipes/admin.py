@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from recipes.models import Recipe, RecipeIngredient, ShoppingCart, Favorite
+from recipes.models import Favorite, Recipe, RecipeIngredient, ShoppingCart
 
 
 class IngredientsInline(admin.TabularInline):
@@ -40,5 +40,3 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'recipe')
     list_editable = ('user', 'recipe')
     empty_value_display = '--пусто--'
-
-
