@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
@@ -10,8 +11,6 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Follow
 
 from .filters import RecipeFilter
@@ -54,10 +53,6 @@ class UserViewSet(
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return CustomUserReadSerializer
-        elif self.action == 'set_password':
-            return PasswordSerializer
-        elif self.action == 'subscribe':
-            return FollowToSerializer
         return CustomUserCreateSerializer
 
     @action(
@@ -104,12 +99,8 @@ class UserViewSet(
         user = request.user
         subscriptions = user.follower.all()
         users_id = subscriptions.values_list('author_id', flat=True)
-        users = User.objects.filter(id__in=users_id)
-        paginated_queryset = self.paginate_queryset(users)
-        serializer = self.serializer_class(
-            paginated_queryset, context={'request': request}, many=True
-        )
-        return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(User.objects.filter(id__in=users_id))
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
@@ -130,16 +121,15 @@ class UserViewSet(
                  'data': response_data},
                 status=status.HTTP_201_CREATED
             )
-        elif request.method == 'DELETE':
-            subscription = get_object_or_404(
-                Follow, user=self.request.user,
-                author=get_object_or_404(User, pk=pk)
-            )
-            subscription.delete()
-            return Response(
-                {'message': 'Успешная отписка'},
-                status=status.HTTP_204_NO_CONTENT
-            )
+        subscription = get_object_or_404(
+            Follow, user=self.request.user,
+            author=get_object_or_404(User, pk=pk)
+        )
+        subscription.delete()
+        return Response(
+            {'message': 'Успешная отписка'},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -153,10 +143,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return RecipeReadSerializer
-        elif self.action == 'favorite':
-            return FavoriteSerializer
-        elif self.action == 'shopping_cart':
-            return ShoppingCartSerializer
         return RecipeCreateSerializer
 
     def perform_create(self, serializer):
@@ -186,14 +172,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_201_CREATED
             )
-        elif request.method == 'DELETE':
-            get_object_or_404(
-                Favorite, user=self.request.user,
-                recipe=get_object_or_404(Recipe, pk=pk)).delete()
-            return Response(
-                {'message': 'Рецепт успешно удален из избранного'},
-                status=status.HTTP_204_NO_CONTENT
-            )
+        get_object_or_404(
+            Favorite, user=self.request.user,
+            recipe=get_object_or_404(Recipe, pk=pk)).delete()
+        return Response(
+            {'message': 'Рецепт успешно удален из избранного'},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         methods=('post', 'delete',),
@@ -216,16 +201,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_201_CREATED
             )
-        elif self.request.method == 'DELETE':
-            get_object_or_404(
-                ShoppingCart,
-                user=self.request.user,
-                recipe=get_object_or_404(Recipe, pk=pk)
-            ).delete()
-            return Response(
-                {'message': 'Рецепт успешно удален из списка покупок'},
-                status=status.HTTP_204_NO_CONTENT
-            )
+        get_object_or_404(
+            ShoppingCart,
+            user=self.request.user,
+            recipe=get_object_or_404(Recipe, pk=pk)
+        ).delete()
+        return Response(
+            {'message': 'Рецепт успешно удален из списка покупок'},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=False,

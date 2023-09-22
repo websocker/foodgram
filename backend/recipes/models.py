@@ -1,11 +1,56 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
-from ingredients.models import Ingredient
-from tags.models import Tag
-
 User = get_user_model()
+
+
+class Tag(models.Model):
+    name = models.CharField(
+        max_length=200,
+        verbose_name='Название'
+    )
+    color = models.CharField(
+        max_length=7,
+        blank=False,
+        verbose_name='Цвет в HEX'
+    )
+    slug = models.SlugField(
+        max_length=200,
+        unique=True,
+        blank=False,
+        validators=(
+            RegexValidator(r'^[-a-zA-Z0-9_]+$', message='Неверный slug!'),
+        ),
+        verbose_name='Уникальный slug'
+    )
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return f'{self.name}: {self.color}'
+
+
+class Ingredient(models.Model):
+    name = models.CharField(
+        max_length=200,
+        db_index=True,
+        verbose_name='Название',
+    )
+    measurement_unit = models.CharField(
+        max_length=200,
+        verbose_name='Единица измерения'
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиенты'
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):

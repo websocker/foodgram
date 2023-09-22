@@ -30,7 +30,7 @@ services:
     depends_on:
         - backend
 
-  nginx:
+  gateway:
     image: nginx:1.19.3
     ports:
       - "8000:80"
