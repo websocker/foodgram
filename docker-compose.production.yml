@@ -8,35 +8,39 @@ volumes:
 services:
   db:
     image: postgres:13.10
-    env_file: ../.env
+    env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    image: jup1ter/foodgram_backend:latest
-    depends_on:
-      - db
-    env_file: ../.env
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
     volumes:
       - static:/backend_static
       - media:/media
+    depends_on:
+      - db
 
   frontend:
-    image: jup1ter/foodgram_frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: cp -r /app/build/. /static/
     volumes:
-      - ../frontend/:/app/result_build/
+      - static:/static
     depends_on:
         - backend
 
   gateway:
-    image: jup1ter/foodgram_gateway:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     ports:
       - "8081:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/html/static/
-      - media:/var/html/media/
+      - static:/static
+      - media:/media
     depends_on:
       - frontend
