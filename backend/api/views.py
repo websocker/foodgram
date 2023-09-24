@@ -73,7 +73,7 @@ class UserViewSet(
     )
     def set_password(self, request):
         user = request.user
-        serializer = self.get_serializer(user, data=request.data)
+        serializer = self.serializer_class(user, data=request.data)
         serializer.is_valid(raise_exception=True)
         old_password = serializer.validated_data.get('current_password')
         new_password = serializer.validated_data.get('new_password')
@@ -97,9 +97,13 @@ class UserViewSet(
         pagination_class=CustomPagination
     )
     def subscriptions(self, request):
-        subscriptions = request.user.follower.all()
-        serializer = self.get_serializer(subscriptions)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        paginated_queryset = self.paginate_queryset(
+            tuple(map(lambda sub: sub.author, request.user.follower.all()))
+        )
+        serializer = self.serializer_class(
+            paginated_queryset, context={'request': request}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
@@ -108,7 +112,7 @@ class UserViewSet(
         permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, pk=None):
-        serializer = self.get_serializer(
+        serializer = self.serializer_class(
             data=request.data,
             context={'request': request, 'id': pk}
         )
@@ -159,7 +163,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk=None):
-        serializer = self.get_serializer(
+        serializer = self.serializer_class(
             data=request.data,
             context={'request': request, 'recipe_id': pk}
         )
@@ -190,8 +194,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk=None):
-        # if self.request.method == 'POST':
-        serializer = self.get_serializer(
+        serializer = self.serializer_class(
             data=request.data,
             context={'request': request, 'recipe_id': pk}
         )
