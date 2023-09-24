@@ -13,9 +13,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: jup1ter/foodgram_backend
     env_file: .env
     volumes:
       - static:/backend_static
@@ -24,9 +22,7 @@ services:
       - db
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: jup1ter/foodgram_frontend
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
@@ -34,9 +30,7 @@ services:
         - backend
 
   gateway:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: jup1ter/foodgram_gateway
     ports:
       - "8081:80"
     volumes:
