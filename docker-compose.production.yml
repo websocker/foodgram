@@ -13,7 +13,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    build: ../backend/
+    image: jup1ter/foodgram_backend:latest
     depends_on:
       - db
     env_file: ../.env
@@ -22,20 +22,16 @@ services:
       - media:/media
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: jup1ter/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
         - backend
 
   gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jup1ter/foodgram_gateway:latest
     ports:
-      - "8000:80"
+      - "8081:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
