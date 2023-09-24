@@ -31,7 +31,9 @@ services:
         - backend
 
   gateway:
-    image: nginx:1.19.3
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:80"
     volumes:
