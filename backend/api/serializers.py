@@ -4,9 +4,10 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
+
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
-from rest_framework import serializers
 from users.models import Follow, User
 
 from .fields import Base64ImageField

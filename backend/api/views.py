@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import (CreateModelMixin, ListModelMixin,
@@ -11,6 +10,8 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Follow
 
 from .filters import RecipeFilter
@@ -96,31 +97,31 @@ class UserViewSet(
         pagination_class=CustomPagination
     )
     def subscriptions(self, request):
-        user = request.user
-        subscriptions = user.follower.all()
-        users_id = subscriptions.values_list('author_id', flat=True)
-        serializer = self.get_serializer(User.objects.filter(id__in=users_id))
+        subscriptions = request.user.follower.all()
+        serializer = self.get_serializer(subscriptions)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
-        methods=('post', 'delete'),
+        methods=('post',),
         serializer_class=FollowToSerializer,
         permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, pk=None):
-        if request.method == 'POST':
-            serializer = self.get_serializer(
-                data=request.data,
-                context={'request': request, 'id': pk}
-            )
-            serializer.is_valid(raise_exception=True)
-            response_data = serializer.save(id=pk)
-            return Response(
-                {'message': 'Подписка успешно создана',
-                 'data': response_data},
-                status=status.HTTP_201_CREATED
-            )
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request, 'id': pk}
+        )
+        serializer.is_valid(raise_exception=True)
+        response_data = serializer.save(id=pk)
+        return Response(
+            {'message': 'Подписка успешно создана',
+             'data': response_data},
+            status=status.HTTP_201_CREATED
+        )
+
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, pk=None):
         subscription = get_object_or_404(
             Follow, user=self.request.user,
             author=get_object_or_404(User, pk=pk)
@@ -152,26 +153,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @action(
-        methods=('post', 'delete',),
+        methods=('post',),
         detail=True,
         serializer_class=FavoriteSerializer,
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk=None):
-        if request.method == 'POST':
-            serializer = self.get_serializer(
-                data=request.data,
-                context={'request': request, 'recipe_id': pk}
-            )
-            serializer.is_valid(raise_exception=True)
-            response_data = serializer.save(id=pk)
-            return Response(
-                {
-                    'message': 'Рецепт успешно добавлен в избранное.',
-                    'data': response_data
-                },
-                status=status.HTTP_201_CREATED
-            )
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request, 'recipe_id': pk}
+        )
+        serializer.is_valid(raise_exception=True)
+        response_data = serializer.save(id=pk)
+        return Response(
+            {
+                'message': 'Рецепт успешно добавлен в избранное.',
+                'data': response_data
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk=None):
         get_object_or_404(
             Favorite, user=self.request.user,
             recipe=get_object_or_404(Recipe, pk=pk)).delete()
@@ -181,26 +184,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        methods=('post', 'delete',),
+        methods=('post',),
         detail=True,
         serializer_class=ShoppingCartSerializer,
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk=None):
-        if self.request.method == 'POST':
-            serializer = self.get_serializer(
-                data=request.data,
-                context={'request': request, 'recipe_id': pk}
-            )
-            serializer.is_valid(raise_exception=True)
-            response_data = serializer.save(id=pk)
-            return Response(
-                {
-                    'message': 'Рецепт успешно добавлен в список покупок',
-                    'data': response_data
-                },
-                status=status.HTTP_201_CREATED
-            )
+        # if self.request.method == 'POST':
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request, 'recipe_id': pk}
+        )
+        serializer.is_valid(raise_exception=True)
+        response_data = serializer.save(id=pk)
+        return Response(
+            {
+                'message': 'Рецепт успешно добавлен в список покупок',
+                'data': response_data
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk=None):
         get_object_or_404(
             ShoppingCart,
             user=self.request.user,

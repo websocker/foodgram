@@ -3,20 +3,27 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
 User = get_user_model()
+TAG_NAME_MAX_LENGTH: int = 200
+TAG_SLUG_MAX_LENGTH: int = 200
+TAG_COLOR_MAX_LENGTH: int = 7
+INGREDIENT_NAME_MAX_LENGTH: int = 200
+INGREDIENT_MEASUREMENT_UNIT_MAX_LENGTH: int = 200
+RECIPE_NAME_MAX_LENGTH: int = 200
+MIN_COOKING_TIME_VALUE: int = 1
 
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=TAG_NAME_MAX_LENGTH,
         verbose_name='Название'
     )
     color = models.CharField(
-        max_length=7,
+        max_length=TAG_COLOR_MAX_LENGTH,
         blank=False,
         verbose_name='Цвет в HEX'
     )
     slug = models.SlugField(
-        max_length=200,
+        max_length=TAG_SLUG_MAX_LENGTH,
         unique=True,
         blank=False,
         validators=(
@@ -35,12 +42,12 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=INGREDIENT_NAME_MAX_LENGTH,
         db_index=True,
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
-        max_length=200,
+        max_length=INGREDIENT_MEASUREMENT_UNIT_MAX_LENGTH,
         verbose_name='Единица измерения'
     )
 
@@ -73,7 +80,7 @@ class Recipe(models.Model):
         verbose_name='Изображение',
     )
     name = models.CharField(
-        max_length=200,
+        max_length=RECIPE_NAME_MAX_LENGTH,
         verbose_name='Название'
     )
     text = models.TextField(
@@ -82,7 +89,8 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         validators=(
             MinValueValidator(
-                1, 'Время приготовления не может быть меньше, чем 1 минута!'
+                MIN_COOKING_TIME_VALUE,
+                'Время приготовления не может быть меньше, чем 1 минута!'
             ),
         ),
         verbose_name='Время приготовления (в минутах)'
