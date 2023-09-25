@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from users.models import Follow
 
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from .pagination import CustomPagination
 from .serializers import (CustomUserCreateSerializer, CustomUserReadSerializer,
                           FavoriteSerializer, FollowSerializer,
@@ -31,6 +31,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
     pagination_class = None
 
 

@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django_filters import rest_framework as filters
-from recipes.models import Recipe
+from recipes.models import Recipe, Ingredient
 
 User = get_user_model()
 
@@ -40,3 +40,14 @@ class RecipeFilter(filters.FilterSet):
             return Recipe.objects.filter(
                 shopping_cart__user=self.request.user
             )
+
+
+class IngredientFilter(filters.FilterSet):
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='istartswith',
+    )
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
