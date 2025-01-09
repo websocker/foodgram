@@ -123,5 +123,3 @@ jobs:
             sudo journalctl --vacuum-size=100M  
             sudo journalctl --vacuum-time=1d  
             sudo journalctl --vacuum-files=10  
-            sudo apt-get clean  
-            sudo docker system prune -a
